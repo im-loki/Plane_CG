@@ -47,6 +47,8 @@ float y_pos=0;          //y axis position of plane
 float theta=0;          //angle of the plane
 bool state;             //state of plane (either going up or down)
 
+bool local_screen = false;
+
 int update_mis;
 
 GLfloat x = 0.0f;       //background screen position
@@ -1194,98 +1196,105 @@ void RenderScene() {
 		drawfps();
 		glutSwapBuffers();
 		glFlush();
+		local_screen=true;
 	}
 	if(page==1) {
-		bool local_screen = false;
 		if(!local_screen) {
-		glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT);
 
-		//load .png image
-		glEnable(GL_TEXTURE_2D);
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		if(i_1==0) {
-			tex_2d_1 = SOIL_load_OGL_texture
-				   (
-					   "res/new.jpg",
-					   SOIL_LOAD_RGBA,
-					   SOIL_CREATE_NEW_ID,
-					   SOIL_FLAG_NTSC_SAFE_RGB
-				   );
-			i_1=1;
-		}
-		glBindTexture(GL_TEXTURE_2D, tex_2d_1);
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			//load .png image
+			glEnable(GL_TEXTURE_2D);
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+			if(i_1==0) {
+				tex_2d_1 = SOIL_load_OGL_texture
+					(
+						"res/new.jpg",
+						SOIL_LOAD_RGBA,
+						SOIL_CREATE_NEW_ID,
+						SOIL_FLAG_NTSC_SAFE_RGB
+					);
+				i_1=1;
+			}
+			glBindTexture(GL_TEXTURE_2D, tex_2d_1);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 
-		glBegin(GL_POLYGON);
-			glTexCoord2f(0.0, 1.0);
-			glVertex2f(-178.0f, -100.0f);
-			glTexCoord2f(1.0, 1.0);
-			glVertex2f(178.0f, -100.0f);
-			glTexCoord2f(1.0, 0.0);
-			glVertex2f(178.0f, 100.0f);
-			glTexCoord2f(0.0, 0.0);
-			glVertex2f(-178.0f, 100.0f);
-		glEnd();
-		glDisable(GL_TEXTURE_2D);
+			glBegin(GL_POLYGON);
+				glTexCoord2f(0.0, 1.0);
+				glVertex2f(-178.0f, -100.0f);
+				glTexCoord2f(1.0, 1.0);
+				glVertex2f(178.0f, -100.0f);
+				glTexCoord2f(1.0, 0.0);
+				glVertex2f(178.0f, 100.0f);
+				glTexCoord2f(0.0, 0.0);
+				glVertex2f(-178.0f, 100.0f);
+			glEnd();
+			glDisable(GL_TEXTURE_2D);
 
-		setFont(GLUT_BITMAP_HELVETICA_18);
-		glColor3f(1.0,1.0,1.0);
-		if(!full) {
-			drawString(-30.0,85.0,0.0,"---SKYWARS---");
-			setFont(GLUT_BITMAP_9_BY_15);
-			glColor3f(0.0,0.0,0.0);
-			drawString(-90.0,55.0,0.0,"Made By:");
 			setFont(GLUT_BITMAP_HELVETICA_18);
-			glColor3f(0.0,0.0,0.0);
-			drawString(-110.0,45.0,0.0,"S LOKESHWAR");
-			setFont(GLUT_BITMAP_HELVETICA_12);
-			// glColor3f(0.0,0.0,0.0);
-			// drawString(-105.0,35.0,0.0,"Anil S - 1PE10CS015");
-			setFont(GLUT_BITMAP_HELVETICA_18);
-			glColor3f(0.25,0.25,0.25);
-			drawString(130.0,-50.0,0.0,"Next!");
-		}
-		else {
+			glColor3f(1.0,1.0,1.0);
+			if(!full) {
+				drawString(-30.0,85.0,0.0,"---SKYWARS---");
+				setFont(GLUT_BITMAP_9_BY_15);
+				glColor3f(0.0,0.0,0.0);
+				drawString(-90.0,55.0,0.0,"Made By:");
+				setFont(GLUT_BITMAP_HELVETICA_18);
+				glColor3f(0.0,0.0,0.0);
+				drawString(-110.0,45.0,0.0,"S LOKESHWAR");
+				setFont(GLUT_BITMAP_HELVETICA_12);
+				// glColor3f(0.0,0.0,0.0);
+				// drawString(-105.0,35.0,0.0,"Anil S - 1PE10CS015");
+				setFont(GLUT_BITMAP_HELVETICA_18);
+				glColor3f(0.25,0.25,0.25);
+				drawString(130.0,-50.0,0.0,"Next!");
+			}
+			else {
 
-			drawString(-15.0,85.0,0.0,"---SKYWARS---");
-			setFont(GLUT_BITMAP_9_BY_15);
-			glColor3f(0.0,0.0,0.0);
-			drawString(-05.0,35.0,0.0,"Made By:");
-			setFont(GLUT_BITMAP_HELVETICA_18);
-			glColor3f(0.0,0.0,0.0);
-			drawString(-15.0,25.0,0.0,"S LOKESHWAR");
-			setFont(GLUT_BITMAP_HELVETICA_12);
-			setFont(GLUT_BITMAP_TIMES_ROMAN_24);
-			glColor3f(0.2,0.2,0.2);
-			drawString(125.0,-35.0,0.0,"Click Here!");
-			setFont(GLUT_BITMAP_HELVETICA_18);
-			glColor3f(0.75,0.75,0.75);
-			drawString(135.0,-40.0,0.0,"Next!");
+				drawString(-15.0,85.0,0.0,"---SKYWARS---");
+				setFont(GLUT_BITMAP_9_BY_15);
+				glColor3f(0.0,0.0,0.0);
+				drawString(-05.0,35.0,0.0,"Made By:");
+				setFont(GLUT_BITMAP_HELVETICA_18);
+				glColor3f(0.0,0.0,0.0);
+				drawString(-15.0,25.0,0.0,"S LOKESHWAR");
+				setFont(GLUT_BITMAP_HELVETICA_12);
+				setFont(GLUT_BITMAP_TIMES_ROMAN_24);
+				glColor3f(0.2,0.2,0.2);
+				drawString(125.0,-35.0,0.0,"Click Here!");
+				setFont(GLUT_BITMAP_HELVETICA_18);
+				glColor3f(0.75,0.75,0.75);
+				drawString(135.0,-40.0,0.0,"Next!");
+			}
+			drawfps();
+			glutSwapBuffers();
 		}
-
-		drawfps();
-		glutSwapBuffers();
-		}
-		else{
+		else if(local_screen==true){
 			printf("Narration::\n");
+			glDisable(GL_TEXTURE_2D);
 			glPushMatrix();
 			glClear(GL_COLOR_BUFFER_BIT);
-			glClearColor(0.0,0.0,0.0,0.0);
+			glClearColor(0.0,0.0,0.0,1.0);
 			glColor3f(1.0,1.0,1.0);
 			glShadeModel(GL_SMOOTH);
 			glBegin(GL_POLYGON);
 				glColor3f(1.0,0.0,0.0);
-				glVertex2d(5.0,5.0);
+				glVertex2d(-190,-100);
 				glColor3f(0.0,1.0,0.0);
-				glVertex2d(100,100);
+				printf("Drawing ??\n");
+				glVertex2d(-190,100);
 				glColor3f(0.0,0.0,1.0);
-				glVertex2d(-40,-35);
+				glVertex2d(190,100);
+				glColor3f(1.0,1.0,0.0);
+				glVertex2d(190,-100);
 			glEnd();
-			glFlush();
-			glPopMatrix();
+			glColor3f(1,1,1);
+			setFont(GLUT_BITMAP_HELVETICA_18);
+			drawString(125.0,-35.0,0.0,"Click Here!");
 			glShadeModel(GL_FLAT);
+			glutSwapBuffers();
+			glFlush();
 		}
+		
 	}
 	if(page==2) {
 
@@ -1792,9 +1801,12 @@ int main(int argc, char* argv[]) {
 	myinit();
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(SpecialKeys);
-	glutMouseFunc(Mouse);
+	//glutMouseFunc(Mouse);
 	glutDisplayFunc(RenderScene);
-	glutTimerFunc(100, TimerFunction, frames);
+	if(local_screen==false){
+		glutMouseFunc(Mouse);
+		glutTimerFunc(100, TimerFunction, frames);
+	}
 	glutReshapeFunc(Resize);
 	glutMainLoop();
 	return 0;
