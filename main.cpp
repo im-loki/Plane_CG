@@ -239,6 +239,13 @@ void drawString(float x,float y,float z,char* string) {
 	}
 }
 
+
+void drawStroke(const unsigned char* s) {
+    glColor3f(1.0,1.0,1.0);
+    glutStrokeString(GLUT_STROKE_ROMAN,s);
+}
+
+
 //Determines the action on mouse click event
 void Mouse(int button, int m_state, int m_x, int m_y) {
 	if(page==1)
@@ -454,12 +461,14 @@ void draw_fin_text() {
 	glPushMatrix();
 	glTranslatef(-105,55,0);
 	glScalef(0.3,0.3,0.3);
-	lengthOfString = (int)strlen(string[0]);
-	for(i=0; i<lengthOfString; i++)
-	{
-		glColor3f(1,1,1);
-		glutStrokeCharacter(GLUT_STROKE_ROMAN,string[0][i]);
-	}
+	// lengthOfString = (int)strlen(string[0]);
+	// for(i=0; i<lengthOfString; i++)
+	// {
+	// 	glColor3f(1,1,1);
+	// 	glutStrokeCharacter(GLUT_STROKE_ROMAN,string[0][i]);
+	// }
+	const unsigned char* t = reinterpret_cast<const unsigned char *>(string[0]);
+    drawStroke(t);
 	glPopMatrix();
 
 	glLineWidth(3);
