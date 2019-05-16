@@ -57,6 +57,15 @@ GLuint tex_2d_0, tex_2d_1, tex_2d_2, tex_2d_21, tex_2d_22, tex_2d_31, tex_2d_4, 
 //determines the current screen
 int page=0;
 
+//new
+int m1=0,int_m1=0;//mission1_status?
+float planex=0,planey=0,bomx=0,bomy=0;
+int no_of_bombs=3,allow_next=1;
+float hit_position_x=80,hit_position_y=80;
+float bom_rad_i=0,bom_rad_o=0;
+
+//
+
 void drawBitmap(float x,float y,void *f,const unsigned char* s) {
 	int i;
 	glRasterPos2f(x,y);
@@ -121,6 +130,32 @@ public:
 	}
 } plane1;
 
+void SpecialInput(int key, int x, int y)
+{
+switch(key)
+{
+case GLUT_KEY_UP:
+//do something here
+break;	
+case GLUT_KEY_DOWN:
+//do something here
+break;
+case GLUT_KEY_LEFT:
+printf("Detecting Left key");
+		if(page==4 && m1==1) 
+			planex -= SPEED;
+		break;
+break;
+case GLUT_KEY_RIGHT:
+if(page==4 && m1==1)
+			planex += SPEED;
+		break;
+//do something here
+break;
+}
+
+glutPostRedisplay();
+}
 //Navigation for esc and fullscreen
 void keyboard(unsigned char key, int x, int y) {
 	switch (key)
@@ -131,7 +166,7 @@ void keyboard(unsigned char key, int x, int y) {
 		if(page!=2)
 		{
 			i_bck=0,i_mis1=0,i_mis2=0,i_mis3=0,i_plane=0,i_sel31=0,i_sel32=0,i_0=0;
-			j[0]=j[1]=j[2]=j[3]=j[4]=j[5]=j[6]=j[7]=0;
+			j[0]=j[1]=j[2]=j[3]=j[4]=j[5]=j[6]=j[7]=j[8]=j[9]=0;
 			missiles=0;
 			dist=0;
 			setting=0;
@@ -149,7 +184,18 @@ void keyboard(unsigned char key, int x, int y) {
 			//exit game
 			exit(0);
 		break;
-
+	case 32:
+		printf("Detecting Spacebar??\n allow: %d\n",allow_next);
+		if(no_of_bombs==0)
+			int_m1=0;
+		if(page==4 && m1==1 && allow_next==1){
+			no_of_bombs -= 1;
+			bomx = planex;
+			bomy = planey;
+			allow_next=0;
+			printf("Decreased no_of bombs: %d\n allow_next: %d\n",no_of_bombs,allow_next);
+		}
+		break;
 	case 'f':       //full screen
 		if (full == 0)
 		{
@@ -162,7 +208,9 @@ void keyboard(unsigned char key, int x, int y) {
 			glutPositionWindow(320,150);
 			full = 0;
 		}
+		break;
 	}
+	glutPostRedisplay();
 }
 
 //Determines the action on mouse click event
@@ -540,6 +588,41 @@ void page1_dup(const char t[50],float x,float y, int index) {
 	glDisable(GL_TEXTURE_2D);
 }
 
+void page_dumy(const char t[50],float x,float y, int index) {
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	if (j[index] == 0)
+	{
+		tex_2d_0 = SOIL_load_OGL_texture
+					(
+						t,
+						SOIL_LOAD_AUTO,
+						SOIL_CREATE_NEW_ID,
+						SOIL_FLAG_MULTIPLY_ALPHA
+					);
+		j[index] = 1;
+	}
+	glBindTexture(GL_TEXTURE_2D, tex_2d_0);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+	glBegin(GL_POLYGON);
+	glTexCoord2f(0.0, 0.0);
+	glVertex2f(-x, y);
+	glTexCoord2f(1.0, 0.0);
+	glVertex2f(x, y);
+	glTexCoord2f(1.0, 1.0);
+	glVertex2f(x, -y);
+	glTexCoord2f(0.0, 1.0);
+	glVertex2f(-x, -y);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+	
+}
+
 void RenderScene() {
 	if(page==0) { //do not shorten this.
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -591,20 +674,19 @@ void RenderScene() {
 			glColor3f(1.0,1.0,1.0);
 			draw_intro_boxes();
 			draw_intro(0);
-			glutSwapBuffers();
-			glFlush();
 		}
 		else if(local_screen==0){
 			page1_dup("res/intro.jpg",178.0,100.0,1);
 			glColor3f(1.0,1.0,1.0);
 			draw_intro_boxes();
 			draw_intro(1);
-			// glPushMatrix();
-			// page1_dup("res/map01.png",100,-25,2);
-			// glPopMatrix();
-			glutSwapBuffers();
-			glFlush();
+			glPushMatrix();
+			glTranslatef(0,-40,0);
+			page_dumy("res/map01.png",30,20,2);
+			glPopMatrix();
 		}
+		glutSwapBuffers();
+		glFlush();
 	}
 	//game menu
 	if(page==2) {
@@ -645,14 +727,14 @@ void RenderScene() {
 		glBindTexture(GL_TEXTURE_2D, tex_2d);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glBegin(GL_POLYGON);
-		glTexCoord2f(0.0, 1.0);
-		glVertex2f(-190.0f+x, -100.0f);
-		glTexCoord2f(1.0, 1.0);
-		glVertex2f(890.0f+x, -100.0f);
-		glTexCoord2f(1.0, 0.0);
-		glVertex2f(890.0f+x, 100.0f);
-		glTexCoord2f(0.0, 0.0);
-		glVertex2f(-190.0f+x, 100.0f);
+			glTexCoord2f(0.0, 1.0);
+			glVertex2f(-190.0f+x, -100.0f);
+			glTexCoord2f(1.0, 1.0);
+			glVertex2f(890.0f+x, -100.0f);
+			glTexCoord2f(1.0, 0.0);
+			glVertex2f(890.0f+x, 100.0f);
+			glTexCoord2f(0.0, 0.0);
+			glVertex2f(-190.0f+x, 100.0f);
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
 
@@ -660,27 +742,27 @@ void RenderScene() {
 		glColor3f(0,0,0);
 		glLineWidth(3);
 		glBegin(GL_LINE_LOOP);
-		glVertex2f(-50-100,80);
-		glVertex2f(50-100,80);
-		glVertex2f(50-100,70);
-		glVertex2f(-50-100,70);
+			glVertex2f(-50-100,80);
+			glVertex2f(50-100,80);
+			glVertex2f(50-100,70);
+			glVertex2f(-50-100,70);
 		glEnd();
 
 		//fuel indicator
 		glColor3f(1,1,1);
 		glBegin(GL_POLYGON);
-		glVertex2f(-49-100,79);
-		glVertex2f(-49+fuel-100,79);
-		glVertex2f(-49+fuel-100,71);
-		glVertex2f(-49-100,71);
+			glVertex2f(-49-100,79);
+			glVertex2f(-49+fuel-100,79);
+			glVertex2f(-49+fuel-100,71);
+			glVertex2f(-49-100,71);
 		glEnd();
 
 		//seprator--to seprate score and game screen
 		glLineWidth(1);
 		glColor3f(1,1,1);
 		glBegin(GL_LINES);
-		glVertex2f(-200,64);
-		glVertex2f(200,64);
+			glVertex2f(-200,64);
+			glVertex2f(200,64);
 		glEnd();
 
 		draw_score();
@@ -696,9 +778,49 @@ void RenderScene() {
 	}
 	//finish
 	if(page==4) { //add next game here.
-		page1_dup("res/finish.png",178.0,100.0,7);
-		draw_fin_text();
-		glutSwapBuffers();
+		if(m1==0){
+			page1_dup("res/finish.png",178.0,100.0,7);
+			draw_fin_text();
+			glutSwapBuffers();
+		}
+		else if(m1==1){
+			//from here 
+			// snprintf()
+			// drawStroke()
+
+			page1_dup("res/new.jpg",178.0,100.0,8);
+			glPushMatrix();
+			glTranslatef(planex,-45,0);
+			glScalef(0.8,0.8,1);
+			page_dumy("res/plane2.png",-40,15,9);
+			glPopMatrix();
+
+			//bomb
+			GLUquadricObj* quadratic;
+			quadratic = gluNewQuadric();
+			glColor4f(189/255.0,45/255.0,89/255.0,0.6);
+			if(allow_next==0 and no_of_bombs<3){
+				printf("Drawing bomb?\n");
+				glPushMatrix();
+				glTranslatef(bomx,bomy,0);
+				gluDisk(quadratic,bom_rad_i,bom_rad_o,32,40);
+				glPopMatrix();
+			}
+
+			//object to blast
+			glPushMatrix();
+			glTranslatef(80,80,0);
+			page_dumy("res/plane2.png",-40,15,9);
+			glPopMatrix();
+
+			glutSwapBuffers();
+		}
+		else if(m1==2){
+			page1_dup("res/finish.png",178.0,100.0,7);
+			drawStroke(reinterpret_cast<const unsigned char *>("Congrats!\nMission-2 Completed.\nGame over"),0,0,0,0.3,0.3,1);
+			glutSwapBuffers();
+		}
+		
 	}
 }
 
@@ -724,20 +846,17 @@ void calculateFPS() {
 
 void TimerFunction(int v) {
 	calculateFPS();
-	if(page==0)
-	{
+	if(page==0) {
 		if(x_step<171.0)
 			x_step+=6.0*SPEED;
 		else
 			page=1;
 	}
-	if(page==22)
-	{
+	if(page==22) {
 		if(y_cre<80)
 			y_cre+=0.5;
 	}
-	if(page==3)
-	{
+	if(page==3) {
 		if(fuel==98||x<-700)
 			x=0;
         x-=0.3*SPEED;
@@ -748,10 +867,17 @@ void TimerFunction(int v) {
 		if(state==UP)
 		{
 			if(fuel>0)
-				fuel-=.1*SPEED;
+				fuel-=.08*SPEED;
 		}
 
 		dist+=0.1*SPEED;
+
+		// if(dist==100){
+		// 	x=0;
+		// 	y_pos=0;
+		// 	page=4;
+		// 	m1=1;
+		// }
 
 		//update number of missiles douged
 		{
@@ -790,6 +916,7 @@ void TimerFunction(int v) {
 			{
 				y_pos=0;
 				page=4;
+				m1=1;//simply
 			}
 			if(theta>0)
 				theta-=.3*SPEED;
@@ -812,12 +939,44 @@ void TimerFunction(int v) {
 						missile_x=200;
 					y_pos=0;
 					x=0;
+					m1=0;
 					page=4;
 					break;
 				}
 			}
 
 		}
+	}
+	if(page==4 && m1==1){
+		if(allow_next==0 and no_of_bombs<3){
+			// bom_rad_o += (rand()%3)/10;
+			bom_rad_i += 0.035*SPEED;
+			bom_rad_o += 0.083*SPEED;
+			printf("Bom_rad %f %f\n",bom_rad_i,bom_rad_o);
+			if(bom_rad_o>=7){
+				bom_rad_i=0;
+				bom_rad_o=0;
+			}
+
+			if(bomx >= 80-20 && bomx <= 80+20 && bomy >= 100)
+			{
+				printf("Almost Done?");
+				page=4;
+				planex=planey=bomx=bomy=0;
+				m1=2;
+				int_m1=1;//
+			}
+			else if(bomy >= 100){
+				printf("Didnt hit");
+				m1=1;
+				bomx=bomy=0;
+				allow_next=1;
+			}
+			bomy += 0.5*SPEED;
+			printf("Bomb coordinates: %.2f %.2f\n",bomx,bomy);
+			
+		}
+			
 	}
 
 	glutPostRedisplay();
@@ -857,6 +1016,8 @@ void Resize(int w, int h) {
 }
 
 int main(int argc, char* argv[]) {
+	page=4;
+m1=1;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(800,450);
@@ -865,6 +1026,7 @@ int main(int argc, char* argv[]) {
 	glutFullScreen();
 	myinit();
 	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(SpecialInput);
 	//glutSpecialFunc(SpecialKeys);
 	//glutMouseFunc(Mouse);
 	glutDisplayFunc(RenderScene);
