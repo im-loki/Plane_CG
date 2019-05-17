@@ -3,6 +3,7 @@
 #include "src/SOIL.h"
 #include <string.h>
 #include <stdio.h>
+#include<stdlib.h>
 
 #define UP 1
 #define DOWN 0
@@ -48,7 +49,7 @@ int no_of_missiles=3;   //determines number of missiles in the game
 int full = 1;
 int i_bck,i_mis1,i_mis2,i_mis3,i_plane,i_inst21;
 int i_cre22,i_sel31,i_sel32,i_0=0;
-int j[10]={0};
+int j[15]={0};
 int i_s,i;
 GLfloat windowWidth;
 GLfloat windowHeight;
@@ -61,10 +62,12 @@ int page=0;
 int m1=0,int_m1=0;//mission1_status?
 float planex=0,planey=0,bomx=0,bomy=0;
 int no_of_bombs=3,allow_next=1;
-float hit_position_x=80,hit_position_y=80;
-float bom_rad_i=0,bom_rad_o=0;
-
+float hit_position_x= 140 ,hit_position_y=40;
+float bom_rad_i=0,bom_rad_o=0,bom_rad_i1=0,bom_rad_o1=1;
+int con_hit=0,count=1;
+float color[] = {1,1,1};
 //
+int max_dest=0,max_missile=0;
 
 void drawBitmap(float x,float y,void *f,const unsigned char* s) {
 	int i;
@@ -130,31 +133,93 @@ public:
 	}
 } plane1;
 
-void SpecialInput(int key, int x, int y)
-{
-switch(key)
-{
-case GLUT_KEY_UP:
-//do something here
-break;	
-case GLUT_KEY_DOWN:
-//do something here
-break;
-case GLUT_KEY_LEFT:
-printf("Detecting Left key");
-		if(page==4 && m1==1) 
-			planex -= SPEED;
-		break;
-break;
-case GLUT_KEY_RIGHT:
-if(page==4 && m1==1)
-			planex += SPEED;
-		break;
-//do something here
-break;
+void plane11(){
+    //printf("Inside Plane\n");
+    
+
+    glBegin(GL_TRIANGLES);
+        glShadeModel(GL_SMOOTH);
+        glColor3f(1.0,0.0,0.0);
+        glVertex2d(0.0,50.0);
+        glVertex2d(150.0,130.0);
+        glColor3f(0.7,0.7,0.7);
+        glVertex2d(150,50);
+
+        glColor3f(1.0,0.0,0.0);
+        glVertex2d(250,50);
+        glVertex2d(250,130);
+        glColor3f(0.7,0.7,0.7);
+        glVertex2d(400,50);
+
+        glColor3f(1.0,0.0,0.0);
+        glVertex2d(150,130);
+        glVertex2d(200,400);
+        glColor3f(0.7,0.7,0.7);
+        glVertex2d(250,130);
+
+        glColor3f(0.0,0.0,1.0);
+        glVertex2d(150,130);
+        glVertex2d(200,250);
+        glColor3f(0.7,0.7,0.7);
+        glVertex2d(250,130);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+        glVertex2d(150,0);
+        glVertex2d(150,50);
+        glVertex2d(190,50);
+        glVertex2d(190,0);
+    glEnd();
+
+    glColor3f(0.7,0.7,0.7);
+    glBegin(GL_POLYGON);
+        glVertex2d(150,0);
+        glVertex2d(150,50);
+        glVertex2d(190,50);
+        glVertex2d(190,0);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+        glVertex2d(210,0);
+        glVertex2d(210,50);
+        glVertex2d(250,50);
+        glVertex2d(250,0);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+        glColor3f(0.0,0.0,0.7);
+        glVertex2d(150,130);
+        glVertex2d(250,130);
+        glColor3f(0.7,0.7,0.7);
+        glVertex2d(250,50);
+        glVertex2d(150,50);
+    glEnd();
+
 }
 
-glutPostRedisplay();
+void SpecialInput(int key, int x, int y)
+{
+	switch(key)
+	{
+	case GLUT_KEY_UP:
+		//do something here
+		break;	
+	case GLUT_KEY_DOWN:
+		//do something here
+		break;
+	case GLUT_KEY_LEFT:
+		printf("Detecting Left key");
+				if(page==4 && m1==1) 
+					planex -= SPEED;
+				break;
+		break;
+	case GLUT_KEY_RIGHT:
+		if(page==4 && m1==1)
+					planex += SPEED;
+		//do something here
+		break;
+	}
+	glutPostRedisplay();
 }
 //Navigation for esc and fullscreen
 void keyboard(unsigned char key, int x, int y) {
@@ -166,12 +231,22 @@ void keyboard(unsigned char key, int x, int y) {
 		if(page!=2)
 		{
 			i_bck=0,i_mis1=0,i_mis2=0,i_mis3=0,i_plane=0,i_sel31=0,i_sel32=0,i_0=0;
-			j[0]=j[1]=j[2]=j[3]=j[4]=j[5]=j[6]=j[7]=j[8]=j[9]=0;
+			j[0]=j[1]=j[2]=j[3]=j[4]=j[5]=j[6]=j[7]=j[8]=j[9]=j[10]=j[11]=j[12]=j[13]=j[14]=0;
+			planex=planey=bomx=bomy=0;
+			no_of_bombs=3;
+			allow_next=1;
+			m1=0;
+			con_hit=0;
+			page=2;
 			missiles=0;
 			dist=0;
+			srand(time(0));
+			hit_position_x = rand()%150;
 			setting=0;
 			hit_missile=0;
+			theta=0;
 			y_pos=0;
+			state=false;
 			missile_x=250;
 			fuel=98;
 			y_cre=0;
@@ -290,6 +365,12 @@ void Mouse(int button, int m_state, int m_x, int m_y) {
 			cout<<"Going Down"<<endl;
 		}
 	}
+	else if(page==4 && m1==3){
+		if(m_x>720 && m_y>260 && m_state==GLUT_UP){
+			page=4;
+			m1=1;
+		}
+	}
 }
 
 //draw text in finish screen (page=4)
@@ -297,7 +378,7 @@ void draw_fin_text() {
 	char string[6][40];
 	int i,lengthOfString;
 
-	strcpy(string[0],"WOW!!");
+	strcpy(string[0],"Mission-1 Failed.");
 	sprintf(string[1],"You just travelled %d meters",(int)dist);
 	sprintf(string[2],"and dodged %d missiles",(int)missiles);
 	sprintf(string[3],"before you ran out of fuel!!");
@@ -316,11 +397,12 @@ void draw_fin_text() {
 	}
     
 	glLineWidth(4);
-    drawStroke(reinterpret_cast<const unsigned char *>(string[0]),-105,55,0,0.3,0.3,0.3);
+    drawStroke(reinterpret_cast<const unsigned char *>(string[0]),-170,55,0,0.1,0.1,0.1);
 	glLineWidth(3);
     drawStroke(reinterpret_cast<const unsigned char *>(string[1]),-155,35,0,0.1,0.1,0.1);
     drawStroke(reinterpret_cast<const unsigned char *>(string[2]),-155,20,0,0.1,0.1,0.1);
     drawStroke(reinterpret_cast<const unsigned char *>(hit_missile==0?string[3]:string[4]),-155,5,0,0.1,0.1,0.1);
+	drawStroke(reinterpret_cast<const unsigned char *>("Press Esc to Restart the mission"),-155,-20,0,0.1,0.1,0.1);
 }
 
 void draw_high_text() {
@@ -421,7 +503,7 @@ void draw_intro(int i) {
 	glPopMatrix();
 }
 
-void draw_intro_boxes() {
+void draw_intro_boxes(int t=0) {
 	printf("Narration::\n");
 		glPushMatrix();
 		glEnable(GL_BLEND);
@@ -441,17 +523,19 @@ void draw_intro_boxes() {
 			glVertex2d(100,50);
 			glVertex2d(100,-90);
 		glEnd();
-		glColor4f(0.1,0.1,0.9,0.9);
-		glBegin(GL_POLYGON);
-			glVertex2d(120,-28);
-			glVertex2d(120,-40);
-			glVertex2d(145,-40);
-			glVertex2d(145,-28);
-		glEnd();
+		if(t==0){
+			glColor4f(0.1,0.1,0.9,0.9);
+			glBegin(GL_POLYGON);
+				glVertex2d(120,-28);
+				glVertex2d(120,-40);
+				glVertex2d(145,-40);
+				glVertex2d(145,-28);
+			glEnd();
+			glColor3f(1.0,1.0,1.0);
+			glClearColor(1.0,1.0,1.0,1.0);
+			drawBitmap(125.0,-35.0,GLUT_BITMAP_9_BY_15,reinterpret_cast<const unsigned char *>("NEXT=>>"));
+		}
 		glDisable(GL_BLEND);
-		glColor3f(1.0,1.0,1.0);
-		glClearColor(1.0,1.0,1.0,1.0);
-		drawBitmap(125.0,-35.0,GLUT_BITMAP_9_BY_15,reinterpret_cast<const unsigned char *>("NEXT=>>"));
 		glPopMatrix();
 		glFlush();
 }
@@ -472,7 +556,7 @@ void rocket(int x_cor, int y_cor,int r_no) {
 	if (i_mis1 == 0){
 		tex_2d_mis[1] = SOIL_load_OGL_texture
 				(
-					"res/rocket2.png",
+					"res/lol01.png",
 					SOIL_LOAD_AUTO,
 					SOIL_CREATE_NEW_ID,
 					SOIL_FLAG_MULTIPLY_ALPHA
@@ -623,52 +707,62 @@ void page_dumy(const char t[50],float x,float y, int index) {
 	
 }
 
+void draw_quads(float dx, float dy,float tx=0,float ty=0,float tz=0,float sx=1,float sy=1,float sz=1){
+	glPushMatrix();
+	glTranslatef(tx,ty,tz);
+	glScalef(sx,sy,sz);
+	glBegin(GL_QUADS);
+		glVertex2f(-dx,dy);
+		glVertex2f(dx,dy);
+		glVertex2f(dx,-dy);
+		glVertex2f(-dx,-dy);
+	glEnd();
+	glPopMatrix();
+}
+
 void RenderScene() {
 	if(page==0) { //do not shorten this.
 		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.0,0.0,0.0,1.0);
 		//load .png image
-		glEnable(GL_TEXTURE_2D);
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		if(i_0==0) {
-			tex_2d_0 = SOIL_load_OGL_texture
-				   (
-					   "res/loading.png",
-					   SOIL_LOAD_RGBA,
-					   SOIL_CREATE_NEW_ID,
-					   SOIL_FLAG_NTSC_SAFE_RGB
-				   );
-			i_0=1;
-		}
-		glBindTexture(GL_TEXTURE_2D, tex_2d_0);
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		// glEnable(GL_TEXTURE_2D);
+		// glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		// if(i_0==0) {
+		// 	tex_2d_0 = SOIL_load_OGL_texture
+		// 		   (
+		// 			   "res/loading.png",
+		// 			   SOIL_LOAD_RGBA,
+		// 			   SOIL_CREATE_NEW_ID,
+		// 			   SOIL_FLAG_NTSC_SAFE_RGB
+		// 		   );
+		// 	i_0=1;
+		// }
+		// glBindTexture(GL_TEXTURE_2D, tex_2d_0);
+		// glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-		glBegin(GL_POLYGON);
-			glTexCoord2f(0.0, 1.0);
-			glVertex2f(-190.0f, -190.0f);
-			glTexCoord2f(1.0, 1.0);
-			glVertex2f(190.0f, -190.0f);
-			glTexCoord2f(1.0, 0.0);
-			glVertex2f(190.0f, 190.0f);
-			glTexCoord2f(0.0, 0.0);
-			glVertex2f(-190.0f, 190.0f);
-		glEnd();
-		glDisable(GL_TEXTURE_2D);
+		// glBegin(GL_POLYGON);
+		// 	glTexCoord2f(0.0, 1.0);
+		// 	glVertex2f(-190.0f, -190.0f);
+		// 	glTexCoord2f(1.0, 1.0);
+		// 	glVertex2f(190.0f, -190.0f);
+		// 	glTexCoord2f(1.0, 0.0);
+		// 	glVertex2f(190.0f, 190.0f);
+		// 	glTexCoord2f(0.0, 0.0);
+		// 	glVertex2f(-190.0f, 190.0f);
+		// glEnd();
+		// glDisable(GL_TEXTURE_2D);
 
 		//draw loading bar
-		glColor3f(1,1,1);
-		glBegin(GL_POLYGON);
-			glVertex2f(-171.0f, -4.4f);
-			glVertex2f(0.0f+x_step, -4.4f);
-			glVertex2f(0.0f+x_step, 1.3f);
-			glVertex2f(-171.0f, 1.3f);
-		glEnd();
-
-		drawfps();
+		glColor3fv(color);
+		GLUquadricObj* quadratic1;
+		quadratic1 = gluNewQuadric();
+		gluDisk(quadratic1,bom_rad_i1,bom_rad_o1,32,10);
+		drawStroke(reinterpret_cast<const unsigned char *>("Loading...."),-15,-3,0,0.07,0.07,1);
 		glutSwapBuffers();
 		glFlush();
 		//local_screen=true;
 	}
-	if(page==1) {
+	else if(page==1) {
 		if(local_screen==1){
 			page1_dup("res/intro.jpg",178.0,100.0,0);
 			glColor3f(1.0,1.0,1.0);
@@ -689,26 +783,26 @@ void RenderScene() {
 		glFlush();
 	}
 	//game menu
-	if(page==2) {
+	else if(page==2) {
 		page1_dup("res/rtr271ii.jpg",178.0,100.0,3);
 		draw_menu_text();
 		drawfps();
 		glutSwapBuffers();
 	}
 	//instruction
-	if(page==21) {
+	else if(page==21) {
 		page1_dup("res/instructions2.png",178.0,100.0,5);
 		draw_inst_text();
 		glutSwapBuffers();
 	}
 	//highscores
-	if(page==23) {
+	else if(page==23) {
 		page1_dup("res/scene2.png",178.0,100.0,4);
 		draw_high_text();
 		glutSwapBuffers();
 	}
 	//game play
-	if(page==3) { //do not shorten this.
+	else if(page==3) { //do not shorten this.
 		glClear(GL_COLOR_BUFFER_BIT);
 		glEnable(GL_TEXTURE_2D);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -777,23 +871,49 @@ void RenderScene() {
 		glutSwapBuffers();
 	}
 	//finish
-	if(page==4) { //add next game here.
+	else if(page==4) { //add next game here.
 		if(m1==0){
 			page1_dup("res/finish.png",178.0,100.0,7);
 			draw_fin_text();
+			// draw_intro_boxes();
 			glutSwapBuffers();
 		}
 		else if(m1==1){
-			//from here 
-			// snprintf()
-			// drawStroke()
+			char string[5][50];
 
-			page1_dup("res/new.jpg",178.0,100.0,8);
+			page1_dup("res/pp.jpg",178.0,100.0,8);
+			
 			glPushMatrix();
-			glTranslatef(planex,-45,0);
-			glScalef(0.8,0.8,1);
-			page_dumy("res/plane2.png",-40,15,9);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+			glColor4f(0,0,0,0.8);
+			glBegin(GL_POLYGON);
+				glVertex2f(-170,95);
+				glVertex2f(-170,80);
+				glVertex2f(170,80);
+				glVertex2f(170,95);
+			glEnd();
+			glBegin(GL_POLYGON);
+				glVertex2f(-180,-100);
+				glVertex2f(-180,-65);
+				glVertex2f(180,-65);
+				glVertex2f(180,-100);
+			glEnd();
+			glDisable(GL_BLEND);
 			glPopMatrix();
+
+			glPushMatrix();
+			glTranslatef(planex-9,-95,0);
+			glScalef(0.05,0.061,1);
+			// page_dumy("res/plane2.png",-40,15,9); //planex,-45,0
+			plane11();
+			glPopMatrix();
+			glColor4f(0.0,0.0,0.0,0.3);
+
+			glColor3f(1.0,1.0,1.0);
+			sprintf(string[1],"Bullets remaining: %d",(int)no_of_bombs);
+			drawStroke(reinterpret_cast<const unsigned char *>(string[1]),-170,85,0,0.05,0.05,1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Use Left and Right arrows"),25,85,0,0.03,0.03,1);
 
 			//bomb
 			GLUquadricObj* quadratic;
@@ -804,20 +924,75 @@ void RenderScene() {
 				glPushMatrix();
 				glTranslatef(bomx,bomy,0);
 				gluDisk(quadratic,bom_rad_i,bom_rad_o,32,40);
+				gluDisk(quadratic,bom_rad_i+3,bom_rad_o+4,20,10);
+				// gluDisk(quadratic,1,5,10,10);
 				glPopMatrix();
 			}
 
 			//object to blast
-			glPushMatrix();
-			glTranslatef(80,80,0);
-			page_dumy("res/plane2.png",-40,15,9);
-			glPopMatrix();
+			if(con_hit==0){
+				glPushMatrix();
+				glTranslatef(hit_position_x,hit_position_y,0);
+				page_dumy("res/tex_h1.jpg",-15,10,9);
+				glPopMatrix();
+				glPushMatrix();
+				glTranslatef(hit_position_x,hit_position_y+10,0);
+				page_dumy("res/tex_h1.jpg",-20,1,14);
+				glPopMatrix();
+				glColor3f(0.0,0.0,0.0);
+				draw_quads(2.5,5,hit_position_x,hit_position_y-4);
+				glPushMatrix();
+				glTranslatef(hit_position_x,hit_position_y+11,0);
+				glBegin(GL_TRIANGLES);
+					glVertex2f(-15,0);
+					glVertex2f(0,5);
+					glVertex2f(15,0);
+				glEnd();
+				glPopMatrix();
+				draw_quads(5,1,hit_position_x,hit_position_y-11);
+				draw_quads(7,1,hit_position_x,hit_position_y-12);
+			}
 
 			glutSwapBuffers();
 		}
 		else if(m1==2){
-			page1_dup("res/finish.png",178.0,100.0,7);
-			drawStroke(reinterpret_cast<const unsigned char *>("Congrats!\nMission-2 Completed.\nGame over"),0,0,0,0.3,0.3,1);
+			char string[2][50];
+			sprintf(string[0],"Bullets used: %d/%d",3-no_of_bombs,3);
+			page1_dup("res/finish.png",178.0,100.0,10);
+			draw_intro_boxes(1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Mission-2 Completed"),-50,75,0,0.08,0.08,1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Congrats!\nMission-2 Completed.\nGame over"),-90,30,0,0.05,0.05,1);
+			drawStroke(reinterpret_cast<const unsigned char *>(string[0]),-90,0,0,0.05,0.05,1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Press esc to return to the main menu."),-90,-80,0,0.06,0.06,1);
+			glPushMatrix();
+			glTranslatef(-25,-35,0);
+			page_dumy("res/hit01.jpeg",50,25,11);
+			glPopMatrix();
+			glutSwapBuffers();
+		}
+		else if(m1==3){
+			page1_dup("res/finish.png",178.0,100.0,12);
+			// draw_fin_text();
+			draw_intro_boxes();
+			drawStroke(reinterpret_cast<const unsigned char *>("Mission-1 completed"),-50,75,0,0.08,0.08,1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Congrats!\nMission-1 Completed.\nFocus Captain!!!\n"),-90,30,0,0.05,0.05,1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Your next mission is shoot the terrorist house.\nYou have 3-Torepodes."),-90,0,0,0.05,0.05,1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Click next when ready...."),-90,-20,0,0.05,0.05,1);
+			glutSwapBuffers();
+		}
+		else if(m1==4){
+			char string[2][50];
+			sprintf(string[0],"Bullets used: %d/%d",3-no_of_bombs,3);
+			page1_dup("res/finish.png",178.0,100.0,10);
+			draw_intro_boxes(1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Mission-2 Failed"),-50,75,0,0.08,0.08,1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Ran out of bullets\nGame over\nRestart the mission champ"),-90,30,0,0.05,0.05,1);
+			drawStroke(reinterpret_cast<const unsigned char *>(string[0]),-90,0,0,0.05,0.05,1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Press esc to return to the main menu."),-90,-80,0,0.06,0.06,1);
+			glPushMatrix();
+			glTranslatef(-25,-35,0);
+			page_dumy("res/map01.png",50,25,11);
+			glPopMatrix();
 			glutSwapBuffers();
 		}
 		
@@ -847,10 +1022,40 @@ void calculateFPS() {
 void TimerFunction(int v) {
 	calculateFPS();
 	if(page==0) {
-		if(x_step<171.0)
-			x_step+=6.0*SPEED;
-		else
-			page=1;
+		bom_rad_i1 += 0.1*SPEED;
+		bom_rad_o1 += 0.05*SPEED;
+		if(bom_rad_i1>=bom_rad_o1){
+			bom_rad_i1 = 0;
+			bom_rad_o1 = count++;
+			color[1] -= 0.3;
+			color[2] -= 0.3;
+		}
+		else if(count == 3){
+			color[0] =1.0;
+			color[1]=color[2]=0;
+		}
+		else if(count == 4){
+			color[1] =0.5;
+			color[2] =0.0;
+		}
+		else if(count == 5){
+			color[0]=0.0;color[1]=1.0;color[2]=0.0;
+			bom_rad_i1 += 2;
+		}
+		else if(count == 6){
+			color[0]=color[1]=color[2]=0.5;
+		}
+		else if(count == 7){
+			color[0]=color[1]=0;color[2]=1.0;
+			bom_rad_i1 += 4;
+		}
+		else if(count == 9) {
+			color[0]=color[1]=color[2]=1.0;
+			bom_rad_i1 += 2;
+		}
+			
+		if(count == 10)
+			page = 1;
 	}
 	if(page==22) {
 		if(y_cre<80)
@@ -872,16 +1077,9 @@ void TimerFunction(int v) {
 
 		dist+=0.1*SPEED;
 
-		// if(dist==100){
-		// 	x=0;
-		// 	y_pos=0;
-		// 	page=4;
-		// 	m1=1;
-		// }
-
 		//update number of missiles douged
 		{
-			if(missile_x<-90)
+			if(missile_x<-100)
 			{
 				if(update_mis==0)
 				{
@@ -916,7 +1114,7 @@ void TimerFunction(int v) {
 			{
 				y_pos=0;
 				page=4;
-				m1=1;//simply
+				m1=0;
 			}
 			if(theta>0)
 				theta-=.3*SPEED;
@@ -946,9 +1144,14 @@ void TimerFunction(int v) {
 			}
 
 		}
+		if(dist>30){ //mission-complete ?
+			page=4;m1=3;
+			srand(time(0));
+			hit_position_x = rand()%150;
+		}
 	}
 	if(page==4 && m1==1){
-		if(allow_next==0 and no_of_bombs<3){
+		if(allow_next==0 && no_of_bombs<3 && no_of_bombs>=0){
 			// bom_rad_o += (rand()%3)/10;
 			bom_rad_i += 0.035*SPEED;
 			bom_rad_o += 0.083*SPEED;
@@ -958,27 +1161,31 @@ void TimerFunction(int v) {
 				bom_rad_o=0;
 			}
 
-			if(bomx >= 80-20 && bomx <= 80+20 && bomy >= 100)
+			if(bomx >= hit_position_x-10 && bomx <= hit_position_x+10 && bomy >= hit_position_y)
 			{
 				printf("Almost Done?");
+				glutPostRedisplay();
+				int_m1=1;
 				page=4;
 				planex=planey=bomx=bomy=0;
 				m1=2;
-				int_m1=1;//
+				
 			}
-			else if(bomy >= 100){
+			else if(bomy >= hit_position_x){
 				printf("Didnt hit");
 				m1=1;
 				bomx=bomy=0;
 				allow_next=1;
+				con_hit=0;
 			}
 			bomy += 0.5*SPEED;
 			printf("Bomb coordinates: %.2f %.2f\n",bomx,bomy);
 			
+		}else if(no_of_bombs==0){
+			page=4;
+			m1=4;
 		}
-			
 	}
-
 	glutPostRedisplay();
 	glutTimerFunc(1000/v,TimerFunction, v);
 }
@@ -1016,8 +1223,8 @@ void Resize(int w, int h) {
 }
 
 int main(int argc, char* argv[]) {
-	page=4;
-m1=1;
+	//page=4;m1=1;
+	cout<<hit_position_x<<endl;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(800,450);
