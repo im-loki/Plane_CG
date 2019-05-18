@@ -49,7 +49,7 @@ int no_of_missiles=3;   //determines number of missiles in the game
 int full = 1;
 int i_bck,i_mis1,i_mis2,i_mis3,i_plane,i_inst21;
 int i_cre22,i_sel31,i_sel32,i_0=0;
-int j[15]={0};
+int j[20]={0};
 int i_s,i;
 GLfloat windowWidth;
 GLfloat windowHeight;
@@ -135,8 +135,6 @@ public:
 
 void plane11(){
     //printf("Inside Plane\n");
-    
-
     glBegin(GL_TRIANGLES);
         glShadeModel(GL_SMOOTH);
         glColor3f(1.0,0.0,0.0);
@@ -231,7 +229,7 @@ void keyboard(unsigned char key, int x, int y) {
 		if(page!=2)
 		{
 			i_bck=0,i_mis1=0,i_mis2=0,i_mis3=0,i_plane=0,i_sel31=0,i_sel32=0,i_0=0;
-			j[0]=j[1]=j[2]=j[3]=j[4]=j[5]=j[6]=j[7]=j[8]=j[9]=j[10]=j[11]=j[12]=j[13]=j[14]=0;
+			j[0]=j[1]=j[2]=j[3]=j[4]=j[5]=j[6]=j[7]=j[8]=j[9]=j[10]=j[11]=j[12]=j[13]=j[14]=j[15]=0;
 			planex=planey=bomx=bomy=0;
 			no_of_bombs=3;
 			allow_next=1;
@@ -241,7 +239,9 @@ void keyboard(unsigned char key, int x, int y) {
 			missiles=0;
 			dist=0;
 			srand(time(0));
-			hit_position_x = rand()%150;
+			int p = rand()%150;
+			p%2==0?hit_position_x=-p:hit_position_x=p;
+			// hit_position_x = rand()%150;
 			setting=0;
 			hit_missile=0;
 			theta=0;
@@ -444,13 +444,11 @@ void draw_inst_text() {
 	int i,lengthOfString;
 
 	strcpy(string[0],"Instructions:\n");
-	strcpy(string[1],"The main objective of this game is to go as far\nas possible in your plane, without hitting the\nmissiles.\n\nPress right mouse button to increase altitude!\nLeaving it will automatically take you down.\nKeep a close eye on the fuel guage though :P\nHave FUN!!!");
-
-	glLineWidth(3);
-    drawStroke(reinterpret_cast<const unsigned char *>(string[0]),-40,50,0,0.3,0.3,0.3);
+	strcpy(string[1],"This Game is split into 2 parts:\n\nMission-1\nHere, you have to travel across the border dodging the enemy planes. \nTry not to crash into them.\n\nMission-2\nAfter reaching the destination. You will have to shoot the\nenemy's safe house.\n\nAll the best champ!!!!!!");
+    drawStroke(reinterpret_cast<const unsigned char *>(string[0]),-80,50,0,0.3,0.3,0.3);
 	glLineWidth(1);
 	int y_pos_21=20;
-	drawStroke(reinterpret_cast<const unsigned char *>(string[1]),-40,y_pos_21-10,0,0.06,0.06,0.06);
+	drawStroke(reinterpret_cast<const unsigned char *>(string[1]),-80,y_pos_21-10,0,0.06,0.06,0.06);
 }
 
 //print the score in page 3 (prints the game scores during game play)
@@ -541,14 +539,7 @@ void draw_intro_boxes(int t=0) {
 }
 
 void rocket(int x_cor, int y_cor,int r_no) {
-    //char rocket[3][16];
-    //rocket[0]="res/rocket2.png";rocket[1]="res/rocket3.png";rocket[2]="res/rocket4.png";
-    // const unsigned char* rocket[3][];
-    // rocket[0] = reinterpret_cast<const unsigned char *>("res/rocket2.png");
-    // rocket[1] = reinterpret_cast<const unsigned char *>("res/rocket3.png");
-    // rocket[2] = reinterpret_cast<const unsigned char *>("res/rocket4.png");
     const unsigned char* t = reinterpret_cast<const unsigned char *>("res/rocket2.png");
-    
     
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
@@ -556,7 +547,7 @@ void rocket(int x_cor, int y_cor,int r_no) {
 	if (i_mis1 == 0){
 		tex_2d_mis[1] = SOIL_load_OGL_texture
 				(
-					"res/lol01.png",
+					"res/p03.png",
 					SOIL_LOAD_AUTO,
 					SOIL_CREATE_NEW_ID,
 					SOIL_FLAG_MULTIPLY_ALPHA
@@ -724,35 +715,6 @@ void RenderScene() {
 	if(page==0) { //do not shorten this.
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClearColor(0.0,0.0,0.0,1.0);
-		//load .png image
-		// glEnable(GL_TEXTURE_2D);
-		// glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		// if(i_0==0) {
-		// 	tex_2d_0 = SOIL_load_OGL_texture
-		// 		   (
-		// 			   "res/loading.png",
-		// 			   SOIL_LOAD_RGBA,
-		// 			   SOIL_CREATE_NEW_ID,
-		// 			   SOIL_FLAG_NTSC_SAFE_RGB
-		// 		   );
-		// 	i_0=1;
-		// }
-		// glBindTexture(GL_TEXTURE_2D, tex_2d_0);
-		// glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-		// glBegin(GL_POLYGON);
-		// 	glTexCoord2f(0.0, 1.0);
-		// 	glVertex2f(-190.0f, -190.0f);
-		// 	glTexCoord2f(1.0, 1.0);
-		// 	glVertex2f(190.0f, -190.0f);
-		// 	glTexCoord2f(1.0, 0.0);
-		// 	glVertex2f(190.0f, 190.0f);
-		// 	glTexCoord2f(0.0, 0.0);
-		// 	glVertex2f(-190.0f, 190.0f);
-		// glEnd();
-		// glDisable(GL_TEXTURE_2D);
-
-		//draw loading bar
 		glColor3fv(color);
 		GLUquadricObj* quadratic1;
 		quadratic1 = gluNewQuadric();
@@ -791,8 +753,16 @@ void RenderScene() {
 	}
 	//instruction
 	else if(page==21) {
-		page1_dup("res/instructions2.png",178.0,100.0,5);
+		page1_dup("res/pp.jpg",178.0,100.0,5);
 		draw_inst_text();
+		// glPushMatrix();
+		// glTranslatef(-130,45,0);
+		// page_dumy("res/p03.png",35,20,16);
+		// glPopMatrix();
+		// glPushMatrix();
+		// glTranslatef(0,-80,0);
+		// page_dumy("res/plane2.png",35,20,15);
+		// glPopMatrix();
 		glutSwapBuffers();
 	}
 	//highscores
@@ -913,7 +883,7 @@ void RenderScene() {
 			glColor3f(1.0,1.0,1.0);
 			sprintf(string[1],"Bullets remaining: %d",(int)no_of_bombs);
 			drawStroke(reinterpret_cast<const unsigned char *>(string[1]),-170,85,0,0.05,0.05,1);
-			drawStroke(reinterpret_cast<const unsigned char *>("Use Left and Right arrows"),25,85,0,0.03,0.03,1);
+			drawStroke(reinterpret_cast<const unsigned char *>("Use Left and Right arrows\nSpacebar to shoot"),115,87,0,0.03,0.03,1);
 
 			//bomb
 			GLUquadricObj* quadratic;
@@ -1147,7 +1117,8 @@ void TimerFunction(int v) {
 		if(dist>30){ //mission-complete ?
 			page=4;m1=3;
 			srand(time(0));
-			hit_position_x = rand()%150;
+			int p = rand()%150;
+			p%2==0?hit_position_x=-p:hit_position_x=p;
 		}
 	}
 	if(page==4 && m1==1){
@@ -1161,7 +1132,7 @@ void TimerFunction(int v) {
 				bom_rad_o=0;
 			}
 
-			if(bomx >= hit_position_x-10 && bomx <= hit_position_x+10 && bomy >= hit_position_y)
+			if(bomx >= hit_position_x-20 && bomx <= hit_position_x+20 && bomy >= hit_position_y)
 			{
 				printf("Almost Done?");
 				glutPostRedisplay();
@@ -1171,7 +1142,7 @@ void TimerFunction(int v) {
 				m1=2;
 				
 			}
-			else if(bomy >= hit_position_x){
+			else if(bomy >= hit_position_y+10){
 				printf("Didnt hit");
 				m1=1;
 				bomx=bomy=0;
@@ -1223,7 +1194,11 @@ void Resize(int w, int h) {
 }
 
 int main(int argc, char* argv[]) {
-	//page=4;m1=1;
+	// page=4;m1=1;
+	// srand(time(0));
+	// int p = rand()%150;
+	// p%2==0?hit_position_x=-p:hit_position_x=p;
+	// page = 21;
 	cout<<hit_position_x<<endl;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
